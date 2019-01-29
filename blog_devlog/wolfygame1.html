@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>
+Badly_Drawn_Squirrel - Devlog - wolfygame 1/28/19
+    </title>
+    <link rel="stylesheet" href="/style.css">
+  </head>
+  <body>
+    <header>
+      <h1>
+Badly_Drawn_Squirrel <small> - Devlog</small>
+      </h1>
+      <nav>
+        <ul>
+ <li><a href="/">Blog</a></li>
+ <li><a href="/projects">Projects</a></li>
+ <li><a href="/about">About</a></li>
+ <li><a href="/blog_devlog">Devlog</a></li>
+        </ul>
+      </nav>
+      <hr>
+    </header>
+<aside>
+  <nav>
+    <ul>
+     <div>
+      <li>Prev</li>      <li>Next</li>      </div><div><li><a href="archive.html">Archive</a></li>
+      <li><a href="wolfygame1.html">Permalink</a></li>
+     </div>
+    </ul>
+  </nav>
+</aside>
+<article>
+<h1>
+wolfygame 1/28/19</h1>
+
+
+<p>
+
+So &quot;wolfygame&quot; is just a place-holder title for a small software raycasting (<i>
+not</i>
+
+raytracing) engine I'm working on. I've written this in the past, but never
+went far beyond wall, floor and ceiling texturing (I did add diffuse lighting
+though :D). Hopefully, this one can add some more interesting features,
+particularly, different floor heights.
+
+</p>
+<p>
+
+So, a RAYCASTING engine is an engine in the style of the game Wolfenstein 3D,
+where the map is a 2D tile map, but it is rendered in 3D as a set of walls:
+
+</p>
+<img src="/static/wolf3d.png" width="640" height="400" title="Wolf3D">
+
+
+<p>
+
+The more familiar raytracing casts one ray per pixel, whereas raycasting casts
+one ray per column of the screen. The first (or several, with multiheight
+floors) collision with a wall is found and a (textured) vertical strip is
+drawn scaled based on the distance. Do this for each column and you get a 3D
+render of the 2D map. Because it casts a ray per column, it is limited to 2D
+geometry with walls and floors always perpendicular.
+
+</p>
+<section>
+<h1>Tutorials</h1>
+<p>
+
+
+There are two main tutorials on raycasting on the internet: 
+<a href="https://permadi.com/1996/05/ray-casting-tutorial-table-of-contents/">permadi</a>
+and <a href="https://lodev.org/cgtutor/raycasting.html">lodev</a>. Both
+tutorials are good, but they both have a couple problems.
+
+</p>
+<section>
+<h1>Permadi</h1>
+<p>
+
+
+This tutorial is the most intuitive one. It takes its time and explains things
+well. It solves everything using basic trigonometry. However, if you implement
+its algorithm as described and then raise the field of view (FOV) up to 90, as
+you would on a widescreen monitor, the sides of the screen look warped.  (...
+also, why oh why do console game ports so often ship with 60 degress FOV?!
+...).
+
+</p>
+<p>
+
+The problem has to do with how it determines the direction of the rays. It
+does something like this:
+
+</p>
+<pre><code>double field_of_view = 90.0;
+double angle_player_faces = 45.0;
+for (int column = 0; column &lt; screen_width; column++) {
+    float angle_of_ray = angle_player_faces - field_of_view / 2 +
+            ((double)column / (double)screen_width) * field_of_view
+
+    ... use the angle, cast the ray, etc ...
+}
+</code></pre>
+
+
+<p>
+ The angle of each ray is calculated by stepping across 90 degrees
+in equal increments of degrees. This is simple to impement, but is actually
+incorrect.  When modeling raycasting (or rendering in general), the viewer is
+at a position behind a camera plane onto which the screen is mapped. What is
+rendered to the screen represents the &quot;light&quot; that passes in to the player
+point through that plane. Each ray is supposed to be for a different, equally
+spaced column of the screen, so that means that each ray must start at the
+player position and pass through equally spaced increments of the camera
+plane. It looks like this (V2 is a 2D vector of double):
+
+</p>
+<pre><code>V2 player_direction = (V2) { .x = 1, .y = 0 };
+V2 camera_plane = V2NormalOf(player_direction);
+// If the camera plane is the same magnitude as the direction
+// you have a 90 deg fov
+
+for (int column = 0; column &lt; screen_width; column++) {
+    // linear slide from -1 to 1:
+    double amount = (2 * column) / screen_width - 1;
+    V2 ray_vector = player_direction + camera_plane * amount;
+
+    .. use the vector, cast ray, etc ...
+}
+</code></pre>
+
+
+<p>
+
+This is the method from the lodev tutorial and it is actually correct. If you
+look at the angle of each of these ray vectors, you will find that the change
+in angle from column to column is <i>
+not</i>
+ constant. The change is smaller
+at the edges of the screen/camera plane. For example, with a screen_width of
+50, the angle difference between columns near the middle of the screen is ~2.2
+degrees, but near the ends it is only ~1.2.
+
+</p>
+<p>
+
+So although most of the permadi tutorial is fine, you have to incorporate this
+correct method of computing the ray vector or the result will look warped with
+a high fov.
+
+</p>
+</section>
+<section>
+<h1>lodev</h1>
+<p>
+
+
+The lodev tutorial has the huge benefit of including working code with the
+tutorial. It uses a different method of raycasting built around vector math and
+a bresenham-style (DDA) method for casting the rays. 
+
+At one part of the tutorial, the lengths of two variations of the ray vector
+are calculated - one scaled so the X component is one, and the other scaled so
+that the X component is one. The obvious, intuitive way to do this is:
+
+</p>
+<pre><code>    delta_dist_x = sqrt(1 + ray_y * ray_y / ray_x * ray_x);
+    delta_dist_y = sqrt(1 + ray_x * ray_x / ray_y * ray_x);
+</code></pre>
+<p>
+
+
+This just comes from dividing the vector by either its X or Y component and
+using the pythagorean theorem. However, in the code, these are optimized into
+the following:
+
+</p>
+<pre><code>    delta_dist_x = abs(1 / ray_x);
+    delta_dist_y = abs(1 / ray_y);
+</code></pre>
+
+
+<p>
+
+This simplification is true if and only if the ray vector is a unit vector -
+however, it is not. The ray vector is the sum of the direction and plane
+vectors and its length varies. As a result, these lengths are not correct. But
+then why does the algorithm still work?
+
+</p>
+<p>
+
+These values are only used to accumulate the distance travelled so far by
+hopping along X and Y boundaries (side_dist_x and side_dist_y in the
+tutorial). A non-unit vector will cause both delta_dist_x and delta_dist_y to
+get scaled by the same amount. So, as long as you are only using these to
+compare the lengths with each other, both have the same scaling error, so the
+results end up the same, and it works.
+
+</p>
+<p>
+
+Unfortunately, I could not leave it at that. I want to know the real distance
+travelled while casting the ray, so that on a very large map you can quit casting
+early and just draw silent hill distance fog. Fortunately, there is a very
+easy way to fix this - just use a normalized ray vector:
+
+</p>
+<pre><code>    V2 ray_unit = V2Unit(ray_vector);
+    delta_dist_x = abs(1 / ray_unit.x);
+    delta_dist_y = abs(1 / ray_unit.y);
+
+</code></pre>
+<p>
+
+
+There are some other weak points in the lodev code. Basically, its
+implementation is shorter and clearer than the permadi tutorial, but it gets
+there with some simplifying assumptions. It assumes that the distance between
+the player and the camera plane is always 1. If you want the player to be
+large compared to the map tiles and want their vision to represent this
+proportionally, that value will need to change. This changes the wall height
+and floor casting calculations. It also assumes that walls always have a
+height of 1, that will have to change too.
+
+</p>
+</section>
+</section>
+<section>
+<h1>So far</h1>
+<p>
+
+
+Step 1 was getting the basic walls, floors and ceilings with textures working:
+
+</p>
+
+<p style="text-align:center;">
+<iframe width="560" height="315" src="https://www.youtube.com/embed/KhLNgZxZTwU" frameborder="0" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</p>
+<p>
+
+
+I implemented mipmapping on the textures (or texture atlas), but with the low
+resolution textures I'm using it doesn't help much (and the floors really need
+anistropic filtering or much higher resolution for any real improvement). I
+ended up removing the mipmaps. Here is mipmaping getting toggled on and off:
+
+</p>
+<img src="/static/wolfygame/mipmaps1.gif" title="wolfygame useless mipmaps">
+<p>
+
+
+For the sake of total performance overkill, I added a basic thread pool and arranged
+the renderer to divide the screen up into 
+<code>
+screen_width / logical_proc_count</code>
+
+chunks to be each rendered on a separate thread. Below is a gif of three
+background threads each rendering part of the screen with a 1 ms delay per
+pixel. The main thread would normally be rendering the fourth quadrant, but it
+is busying redrawing the screen over and over to make the animation :)
+
+</p>
+<img src="/static/wolfygame/multicore1.gif" title="wolfygame multicore animation">
+
+
+
+</section>
+</article>
+    <footer>
+      <hr>
+      <p>
+&copy; Eric Alzheimer 2019<br>2019-01-28<br>While you're here, check out my
+    <a href="https://soundcloud.com/work-in-progress">soundcloud</a>.      </p>
+    </footer>
+  </body>
+</html>

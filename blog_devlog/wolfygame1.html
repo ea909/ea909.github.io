@@ -27,7 +27,8 @@ Badly_Drawn_Squirrel <small> - Devlog</small>
   <nav>
     <ul>
      <div>
-      <li>Prev</li>      <li>Next</li>      </div><div><li><a href="archive.html">Archive</a></li>
+      <li>Prev</li>      <li><a href="wolfygame2.html">Next</a></li>
+      </div><div><li><a href="archive.html">Archive</a></li>
       <li><a href="wolfygame1.html">Permalink</a></li>
      </div>
     </ul>
@@ -167,7 +168,7 @@ a bresenham-style (DDA) method for casting the rays.
 
 At one part of the tutorial, the lengths of two variations of the ray vector
 are calculated - one scaled so the X component is one, and the other scaled so
-that the X component is one. The obvious, intuitive way to do this is:
+that the Y component is one. The obvious, intuitive way to do this is:
 
 </p>
 <pre><code>    delta_dist_x = sqrt(1 + ray_y * ray_y / ray_x * ray_x);
@@ -215,19 +216,16 @@ easy way to fix this - just use a normalized ray vector:
 <pre><code>    V2 ray_unit = V2Unit(ray_vector);
     delta_dist_x = abs(1 / ray_unit.x);
     delta_dist_y = abs(1 / ray_unit.y);
-
 </code></pre>
 <p>
 
 
-There are some other weak points in the lodev code. Basically, its
+There are many places like this in the lodev example. Basically, its
 implementation is shorter and clearer than the permadi tutorial, but it gets
 there with some simplifying assumptions. It assumes that the distance between
-the player and the camera plane is always 1. If you want the player to be
-large compared to the map tiles and want their vision to represent this
-proportionally, that value will need to change. This changes the wall height
-and floor casting calculations. It also assumes that walls always have a
-height of 1, that will have to change too.
+the player and the camera plane is always 1. It assumes that the field of view
+and aspect ratio are 60 and 4:3. It also assumes that walls always have a
+height of 1.
 
 </p>
 </section>
@@ -270,6 +268,8 @@ is busying redrawing the screen over and over to make the animation :)
 </p>
 <img src="/static/wolfygame/multicore1.gif" title="wolfygame multicore animation">
 
+
+<a href="/blog_devlog/wolfygame2.html">Link to next wolfygame entry</a>
 
 
 </section>

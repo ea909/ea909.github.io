@@ -201,4 +201,69 @@ table caption {
     }
 }
 
+@media print {
+
+    body {
+        background-color: #FFFFFF;
+        color: #000000;
+        width: 90%;
+        max-width: none;
+    }
+
+    a {
+        color: #000044;
+    }
+
+    a:visited {
+        color: #000044;
+    }
+
+    nav a:visited {
+        color: #000044;
+    }
+
+    h1, h2, h3, h4 {
+        color: #000000;
+    }
+
+    section {
+        page-break-before: left;
+    }
+
+    section:first-of-type {
+        page-break-before: avoid;
+    }
+
+    section section {
+        page-break-before: auto;
+    }
+
+    footer {
+        color: #000000;
+    }
+
+    hr { 
+        border: 0; 
+        height: 1px; 
+        background: #000000;
+    }
+
+    pre {
+        white-space: pre-wrap;
+    }
+
+    code {
+        background-color: white;
+    }
+
+    blockquote, pre, table {
+        background-color: white;
+        border-style: solid;
+        border-width: 1px;
+        border-radius: 4px;
+        max-width: 90%;
+        page-break-inside: avoid;
+    }
+}
+
 

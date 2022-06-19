@@ -1,0 +1,131 @@
+
+
+body 
+{
+    max-width: 58em;
+    margin: 0 auto;
+    padding: 0 5px;
+    font-family: "Lucida Console", "Menlo", "DejaVu Sans Mono", "Droid Sans Mono", "Noto Sans Mono", "monospace";
+    background-color: #ddd;
+    color: black; 
+}
+
+code 
+{
+    background-color: #f8f8f8;
+    font-family: "Lucida Console", "Menlo", "DejaVu Sans Mono", "Droid Sans Mono", "Noto Sans Mono", "monospace";
+}
+
+/*
+pre code 
+{
+    overflow: auto;
+}
+*/
+
+pre
+{
+    overflow: auto;
+    padding: 10px;
+    background-color: #f8f8f8;
+}
+
+blockquote, pre, table {
+    border-color: black;
+    border-style: solid;
+    border-width: 1px;
+    max-width: 90%;
+    margin: auto;
+    page-break-inside: avoid;
+}
+
+h1 
+{ 
+    border-bottom: 3px solid black;
+}
+
+h2 
+{ 
+    border-bottom: 1px solid black;
+}
+
+section section h1 
+{ 
+    border-bottom: 0px solid black;
+}
+
+section h1 
+{ 
+    border-bottom: 1px solid black;
+}
+
+footer
+{
+    padding: 10px 0px;
+    border-top: 3px solid black;
+    text-align: center;
+}
+
+img
+{
+    margin: auto;
+    max-width: 90%;
+    display: block;
+    text-align: center;
+}
+
+@media (prefers-color-scheme: dark)
+{
+    body
+    {
+        background-color: #222;
+        color: #ddd;
+    }
+
+    a 
+    {
+        color: #c9800a;
+    }
+
+    a:visited 
+    {
+        color: #09800a;
+    }
+
+    pre, code
+    {
+        background-color: #111;
+    }
+
+    blockquote, pre, table 
+    {
+        border-color: #333;
+    }
+
+    h1 
+    { 
+        border-color: #ddd;
+    }
+
+    h2 
+    { 
+        border-color: #ddd;
+    }
+
+    section section h1 
+    { 
+        border-color: #ddd;
+    }
+
+    section h1 
+    { 
+        border-color: #ddd;
+    }
+
+    footer
+    {
+        padding: 10px 0px;
+        border-color: #ddd;
+    }
+}
+

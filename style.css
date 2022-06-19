@@ -5,7 +5,7 @@ body
     max-width: 58em;
     margin: 0 auto;
     padding: 0 5px;
-    font-family: "Lucida Console", "Menlo", "DejaVu Sans Mono", "Droid Sans Mono", "Noto Sans Mono", "monospace";
+    font-family: "Lucida Console", "Menlo", "DejaVu Sans Mono", "Droid Sans Mono", "Noto Sans Mono", monospace;
     background-color: #ddd;
     color: black; 
 }
@@ -13,7 +13,7 @@ body
 code 
 {
     background-color: #f8f8f8;
-    font-family: "Lucida Console", "Menlo", "DejaVu Sans Mono", "Droid Sans Mono", "Noto Sans Mono", "monospace";
+    font-family: "Lucida Console", "Menlo", "DejaVu Sans Mono", "Droid Sans Mono", "Noto Sans Mono", monospace;
 }
 
 /*
